@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowChain — Diagrama de Use Cases</title>
+<style>
+  body { font-family: sans-serif; background: #f8f8f6; margin: 0; padding: 20px; }
+  h2 { text-align: center; color: #1a3a5c; margin-bottom: 4px; }
+  p.sub { text-align: center; color: #888; font-size: 13px; margin-top: 0; margin-bottom: 20px; }
+  svg { display: block; margin: 0 auto; max-width: 860px; width: 100%; }
+  .actor-label { font-size: 12px; fill: #333; font-weight: 600; }
+  .section-label { font-size: 11px; fill: #aaa; }
+  .uc-text { font-size: 11px; }
+  .boundary-label { font-size: 11px; fill: #999; }
+  .legend-text { font-size: 11px; fill: #555; }
+</style>
+</head>
+<body>
+<h2>FlowChain</h2>
+<p class="sub">Diagrama de Use Cases — v1.0 | Março 2026</p>
+<svg viewBox="0 0 860 740" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- System boundary -->
+  <rect x="110" y="14" width="640" height="694" rx="8" fill="none" stroke="#aaa" stroke-width="1.2" stroke-dasharray="6 3"/>
+  <text x="430" y="34" text-anchor="middle" class="boundary-label">«system» FlowChain</text>
+
+  <!-- Section labels -->
+  <text x="265" y="60" text-anchor="middle" class="section-label">— Unidade —</text>
+  <text x="265" y="528" text-anchor="middle" class="section-label">— Estafeta —</text>
+  <text x="595" y="60" text-anchor="middle" class="section-label">— Admin —</text>
+  <text x="595" y="400" text-anchor="middle" class="section-label">— Armazém —</text>
+
+  <!-- UNIDADE UCs (purple) -->
+  <g>
+    <ellipse cx="265" cy="88" rx="130" ry="20" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1"/>
+    <text x="265" y="92" text-anchor="middle" class="uc-text" fill="#3C3489">Submeter pedidos semanais</text>
+  </g>
+  <g>
+    <ellipse cx="265" cy="148" rx="130" ry="20" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1"/>
+    <text x="265" y="152" text-anchor="middle" class="uc-text" fill="#3C3489">Submeter pedido de preparados</text>
+  </g>
+  <g>
+    <ellipse cx="265" cy="208" rx="130" ry="20" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1"/>
+    <text x="265" y="212" text-anchor="middle" class="uc-text" fill="#3C3489">Controlo diário de frango</text>
+  </g>
+  <g>
+    <ellipse cx="265" cy="268" rx="130" ry="20" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1"/>
+    <text x="265" y="272" text-anchor="middle" class="uc-text" fill="#3C3489">Registar pagamentos</text>
+  </g>
+  <g>
+    <ellipse cx="265" cy="328" rx="130" ry="20" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1"/>
+    <text x="265" y="332" text-anchor="middle" class="uc-text" fill="#3C3489">Consultar histórico e stock</text>
+  </g>
+
+  <!-- ESTAFETA UCs (teal) -->
+  <g>
+    <ellipse cx="265" cy="558" rx="130" ry="20" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1"/>
+    <text x="265" y="562" text-anchor="middle" class="uc-text" fill="#085041">Registar transferência urgente</text>
+  </g>
+  <g>
+    <ellipse cx="265" cy="618" rx="130" ry="20" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1"/>
+    <text x="265" y="622" text-anchor="middle" class="uc-text" fill="#085041">Consultar transferências do dia</text>
+  </g>
+
+  <!-- ADMIN UCs (amber) -->
+  <g>
+    <ellipse cx="595" cy="88" rx="130" ry="20" fill="#FAEEDA" stroke="#BA7517" stroke-width="1"/>
+    <text x="595" y="92" text-anchor="middle" class="uc-text" fill="#633806">Ver listas consolidadas</text>
+  </g>
+  <g>
+    <ellipse cx="595" cy="148" rx="130" ry="20" fill="#FAEEDA" stroke="#BA7517" stroke-width="1"/>
+    <text x="595" y="152" text-anchor="middle" class="uc-text" fill="#633806">Monitorizar todas as unidades</text>
+  </g>
+  <g>
+    <ellipse cx="595" cy="208" rx="130" ry="20" fill="#FAEEDA" stroke="#BA7517" stroke-width="1"/>
+    <text x="595" y="212" text-anchor="middle" class="uc-text" fill="#633806">Consultar faturas e pagamentos</text>
+  </g>
+  <g>
+    <ellipse cx="595" cy="268" rx="130" ry="20" fill="#FAEEDA" stroke="#BA7517" stroke-width="1"/>
+    <text x="595" y="272" text-anchor="middle" class="uc-text" fill="#633806">Gerir utilizadores</text>
+  </g>
+
+  <!-- ARMAZÉM UCs (coral) -->
+  <g>
+    <ellipse cx="595" cy="428" rx="130" ry="20" fill="#FAECE7" stroke="#D85A30" stroke-width="1"/>
+    <text x="595" y="432" text-anchor="middle" class="uc-text" fill="#4A1B0C">Consultar pedidos agregados</text>
+  </g>
+  <g>
+    <ellipse cx="595" cy="488" rx="130" ry="20" fill="#FAECE7" stroke="#D85A30" stroke-width="1"/>
+    <text x="595" y="492" text-anchor="middle" class="uc-text" fill="#4A1B0C">Gerir stock do armazém</text>
+  </g>
+  <g>
+    <ellipse cx="595" cy="548" rx="130" ry="20" fill="#FAECE7" stroke="#D85A30" stroke-width="1"/>
+    <text x="595" y="552" text-anchor="middle" class="uc-text" fill="#4A1B0C">Registar distribuição</text>
+  </g>
+  <g>
+    <ellipse cx="595" cy="608" rx="130" ry="20" fill="#FAECE7" stroke="#D85A30" stroke-width="1"/>
+    <text x="595" y="612" text-anchor="middle" class="uc-text" fill="#4A1B0C">Confirmar entregas</text>
+  </g>
+
+  <!-- Association lines: Unidade -->
+  <line x1="68" y1="172" x2="135" y2="88"  stroke="#bbb" stroke-width="0.8"/>
+  <line x1="68" y1="176" x2="135" y2="148" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="68" y1="180" x2="135" y2="208" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="68" y1="184" x2="135" y2="268" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="68" y1="188" x2="135" y2="328" stroke="#bbb" stroke-width="0.8"/>
+
+  <!-- Association lines: Estafeta -->
+  <line x1="68" y1="574" x2="135" y2="558" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="68" y1="586" x2="135" y2="618" stroke="#bbb" stroke-width="0.8"/>
+
+  <!-- Association lines: Admin -->
+  <line x1="796" y1="152" x2="725" y2="88"  stroke="#bbb" stroke-width="0.8"/>
+  <line x1="796" y1="156" x2="725" y2="148" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="796" y1="160" x2="725" y2="208" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="796" y1="164" x2="725" y2="268" stroke="#bbb" stroke-width="0.8"/>
+
+  <!-- Association lines: Armazém -->
+  <line x1="796" y1="488" x2="725" y2="428" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="796" y1="492" x2="725" y2="488" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="796" y1="496" x2="725" y2="548" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="796" y1="500" x2="725" y2="608" stroke="#bbb" stroke-width="0.8"/>
+
+  <!-- Stick figure: Unidade -->
+  <circle cx="55" cy="155" r="13" fill="#fff" stroke="#555" stroke-width="1.5"/>
+  <line x1="55" y1="168" x2="55" y2="192" stroke="#555" stroke-width="1.5"/>
+  <line x1="40" y1="178" x2="70" y2="178" stroke="#555" stroke-width="1.5"/>
+  <line x1="55" y1="192" x2="43" y2="212" stroke="#555" stroke-width="1.5"/>
+  <line x1="55" y1="192" x2="67" y2="212" stroke="#555" stroke-width="1.5"/>
+  <text x="55" y="228" text-anchor="middle" class="actor-label" fill="#333">Unidade</text>
+  <text x="55" y="240" text-anchor="middle" style="font-size:10px;fill:#888">(x7)</text>
+
+  <!-- Stick figure: Estafeta -->
+  <circle cx="55" cy="558" r="13" fill="#fff" stroke="#555" stroke-width="1.5"/>
+  <line x1="55" y1="571" x2="55" y2="595" stroke="#555" stroke-width="1.5"/>
+  <line x1="40" y1="581" x2="70" y2="581" stroke="#555" stroke-width="1.5"/>
+  <line x1="55" y1="595" x2="43" y2="615" stroke="#555" stroke-width="1.5"/>
+  <line x1="55" y1="595" x2="67" y2="615" stroke="#555" stroke-width="1.5"/>
+  <text x="55" y="631" text-anchor="middle" class="actor-label" fill="#333">Estafeta</text>
+
+  <!-- Stick figure: Admin -->
+  <circle cx="810" cy="138" r="13" fill="#fff" stroke="#555" stroke-width="1.5"/>
+  <line x1="810" y1="151" x2="810" y2="175" stroke="#555" stroke-width="1.5"/>
+  <line x1="795" y1="161" x2="825" y2="161" stroke="#555" stroke-width="1.5"/>
+  <line x1="810" y1="175" x2="798" y2="195" stroke="#555" stroke-width="1.5"/>
+  <line x1="810" y1="175" x2="822" y2="195" stroke="#555" stroke-width="1.5"/>
+  <text x="810" y="211" text-anchor="middle" class="actor-label" fill="#333">Admin</text>
+
+  <!-- Stick figure: Armazém -->
+  <circle cx="810" cy="472" r="13" fill="#fff" stroke="#555" stroke-width="1.5"/>
+  <line x1="810" y1="485" x2="810" y2="509" stroke="#555" stroke-width="1.5"/>
+  <line x1="795" y1="495" x2="825" y2="495" stroke="#555" stroke-width="1.5"/>
+  <line x1="810" y1="509" x2="798" y2="529" stroke="#555" stroke-width="1.5"/>
+  <line x1="810" y1="509" x2="822" y2="529" stroke="#555" stroke-width="1.5"/>
+  <text x="810" y="545" text-anchor="middle" class="actor-label" fill="#333">Armazém</text>
+
+  <!-- Legend -->
+  <rect x="115" y="672" width="12" height="12" rx="2" fill="#EEEDFE" stroke="#7F77DD"/>
+  <text x="132" y="682" class="legend-text">Unidade</text>
+  <rect x="200" y="672" width="12" height="12" rx="2" fill="#E1F5EE" stroke="#1D9E75"/>
+  <text x="217" y="682" class="legend-text">Estafeta</text>
+  <rect x="278" y="672" width="12" height="12" rx="2" fill="#FAEEDA" stroke="#BA7517"/>
+  <text x="295" y="682" class="legend-text">Admin</text>
+  <rect x="348" y="672" width="12" height="12" rx="2" fill="#FAECE7" stroke="#D85A30"/>
+  <text x="365" y="682" class="legend-text">Armazém</text>
+</svg>
+</body>
+</html>
