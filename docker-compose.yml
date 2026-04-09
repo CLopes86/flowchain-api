@@ -1,0 +1,34 @@
+
+
+services:
+
+  # Base de dados PostgreSQL
+  # Container principal onde ficam guardados todos os dados do FlowChain
+  flowchain-db:
+    image: postgres:16
+    container_name: flowchain-db
+    environment:
+      POSTGRES_DB: flowchain
+      POSTGRES_USER: flowchain_user
+      POSTGRES_PASSWORD: flowchain_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - flowchain_data:/var/lib/postgresql/data
+
+  # pgAdmin — interface visual para gerir o PostgreSQL
+  # Acede em http://localhost:5050
+  flowchain-pgadmin:
+    image: dpage/pgadmin4
+    container_name: flowchain-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@flowchain.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - flowchain-db
+
+# Volume para persistir os dados mesmo quando o container é parado
+volumes:
+  flowchain_data:
