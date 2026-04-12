@@ -1,3 +1,42 @@
 spring:
   application:
+    # Nome da aplicação
     name: flowchain-api
+
+  datasource:
+    # Endereço da base de dados
+    # jdbc:postgresql → protocolo de ligação ao PostgreSQL
+    # localhost:5432  → endereço e porta do container PostgreSQL
+    # flowchain       → nome da base de dados
+    url: jdbc:postgresql://localhost:5432/flowchain
+
+    # Utilizador e password definidos no docker-compose.yml
+    username: flowchain_user
+    password: flowchain_pass
+
+    # Driver que permite ao Java comunicar com o PostgreSQL
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      # update → o Hibernate cria/atualiza as tabelas automaticamente
+      # quando a aplicação arranca
+      # Nunca usar 'create' em produção — apaga todos os dados!
+      ddl-auto: update
+
+    # Mostra as queries SQL geradas no terminal
+    # Muito útil para aprender e fazer debug
+    show-sql: true
+
+    properties:
+      hibernate:
+        # Diz ao Hibernate que estamos a usar PostgreSQL
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+        # Formata o SQL no terminal para ficar mais legível
+        format_sql: true
+
+# Porta onde a API vai correr
+# Acedes em http://localhost:8080
+server:
+  port: 8080
