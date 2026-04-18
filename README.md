@@ -18,7 +18,7 @@ FlowChain replaces manual WhatsApp and Excel-based workflows with a structured, 
 | Docker + Docker Compose | Latest | Containerization |
 | Maven | 3.x | Build & dependency management |
 | JUnit 5 + Mockito | Latest | Unit & integration testing |
-| Swagger / OpenAPI | 2.x | API documentation |
+| Swagger / OpenAPI | 2.8.8 | API documentation |
 | Lombok | Latest | Boilerplate reduction |
 
 ---
@@ -85,16 +85,20 @@ The system manages 7 operational units:
 
 ## 🗺️ Project Roadmap
 
-### ✅ Phase 1 — Setup & Foundations *(In Progress)*
+### ✅ Phase 1 — Setup & Foundations *(Completed)*
 - [x] Requirements analysis
 - [x] Data model design (12 entities)
 - [x] System architecture diagram
 - [x] Spring Boot 3.x project setup
 - [x] GitHub repository initialization
-- [ ] Docker Compose — PostgreSQL + pgAdmin
-- [ ] Project folder structure
+- [x] Docker Compose — PostgreSQL + pgAdmin
+- [x] Project folder structure
+- [x] Unit entity with JPA mappings
+- [x] UnitRepository, UnitService, UnitController
+- [x] First REST endpoint — GET /api/units
+- [x] Swagger UI integration
 
-### ⏳ Phase 2 — Authentication
+### 🔄 Phase 2 — Authentication *(In Progress)*
 - [ ] User registration & login
 - [ ] JWT token generation and validation
 - [ ] Role-based access control (ADMIN, WAREHOUSE, UNIT, COURIER)
@@ -178,7 +182,7 @@ cd flowchain-api
 
 **2. Start the database**
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 **3. Run the application**
@@ -188,7 +192,7 @@ docker-compose up -d
 
 **4. Access Swagger UI**
 ```
-http://localhost:8080/swagger-ui.html
+http://localhost:8080/swagger-ui/index.html
 ```
 
 ---
@@ -197,6 +201,10 @@ http://localhost:8080/swagger-ui.html
 
 | Method | Endpoint | Role | Description |
 |---|---|---|---|
+| GET | `/api/units` | All | List all units |
+| GET | `/api/units/{id}` | All | Get unit by ID |
+| POST | `/api/units` | ADMIN | Create new unit |
+| DELETE | `/api/units/{id}` | ADMIN | Delete unit |
 | POST | `/api/auth/login` | All | User login |
 | POST | `/api/orders` | UNIT | Submit weekly order |
 | GET | `/api/orders/consolidated` | ADMIN, WAREHOUSE | Consolidated order list |
