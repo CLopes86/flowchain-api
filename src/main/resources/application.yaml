@@ -42,8 +42,9 @@ server:
   port: 8080
 
 
-  springdoc:
-    swagger-ui:
-      path: /swagger-ui.html
-    api-docs:
-      path: /api-docs
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /api-docs
+  packages-to-scan: com.flowchain.api
