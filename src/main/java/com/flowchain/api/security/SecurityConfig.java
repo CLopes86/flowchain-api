@@ -16,6 +16,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 // Política de criação de sessões — vamos usar STATELESS
 import org.springframework.security.config.http.SessionCreationPolicy;
 
+// A interface do Spring Security para codificação de passwords
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+// A implementação BCrypt dessa interface
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 /**
  * Configuração central do Spring Security para o FlowChain.
  *
@@ -53,5 +59,25 @@ public class SecurityConfig {
                 );
 
         return http.build();
+    }
+
+    /**
+     * Bean do codificador de passwords (BCrypt).
+     *
+     * O Spring guarda este objeto no contentor e injeta-o
+     * onde for preciso (AuthService, registo de utilizadores...).
+     *
+     * Métodos que vamos usar:
+     *   encode(password)        → gera o hash (ao criar conta)
+     *   matches(password, hash) → verifica no login (true/false)
+     *
+     * O tipo de retorno é PasswordEncoder (a INTERFACE) e não
+     * BCryptPasswordEncoder (a implementação): assim o resto do
+     * código depende do contrato, não da implementação concreta.
+     * Se um dia trocarmos de algoritmo, muda-se só aqui.
+     */
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
