@@ -48,3 +48,15 @@ springdoc:
   api-docs:
     path: /api-docs
   packages-to-scan: com.flowchain.api
+
+  # Configuração do JWT
+jwt:
+    # Chave secreta usada para assinar os tokens.
+    # NUNCA deve ser partilhada — quem a tiver consegue forjar tokens válidos.
+    # Em produção virá de variável de ambiente, não do ficheiro.
+    # Tem de ser longa: o HS256 exige pelo menos 256 bits (32 caracteres).
+    secret: flowchain-super-secret-key-change-this-in-production-2026
+
+    # Validade do token em milissegundos.
+    # 86400000 ms = 24 horas (24 * 60 * 60 * 1000)
+    expiration: 86400000
