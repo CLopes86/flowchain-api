@@ -53,7 +53,7 @@ public class SecurityConfig {
                 // Regras de autorização, avaliadas POR ORDEM:
                 .authorizeHttpRequests(auth -> auth
                         // Caminhos do Swagger — públicos (documentação e testes)
-                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/api/auth/**" ).permitAll()
                         // Tudo o resto — só com autenticação válida
                         .anyRequest().authenticated()
                 );

@@ -12,7 +12,7 @@ FlowChain replaces manual WhatsApp and Excel-based workflows with a structured, 
 |---|---|---|
 | Java | 21 (LTS) | Programming language |
 | Spring Boot | 3.5.13 | Main framework |
-| Spring Security + JWT | Latest | Authentication & authorization |
+| Spring Security + JWT (jjwt) | 0.12.6 | Authentication & authorization |
 | Spring Data JPA + Hibernate | 3.x | Database ORM |
 | PostgreSQL | 16 | Relational database |
 | Docker + Docker Compose | Latest | Containerization |
@@ -97,12 +97,18 @@ The system manages 7 operational units:
 - [x] UnitRepository, UnitService, UnitController
 - [x] First REST endpoint — GET /api/units
 - [x] Swagger UI integration
+- [x] Global exception handling with `@RestControllerAdvice`
 
 ### 🔄 Phase 2 — Authentication *(In Progress)*
-- [ ] User registration & login
-- [ ] JWT token generation and validation
-- [ ] Role-based access control (ADMIN, WAREHOUSE, UNIT, COURIER)
-- [ ] Security filter configuration
+- [x] User entity + Role enum (ADMIN, WAREHOUSE, UNIT, COURIER)
+- [x] UserRepository with email lookup
+- [x] BCrypt password hashing
+- [x] Spring Security enabled — stateless `SecurityFilterChain`
+- [x] Admin user seeding on startup (`CommandLineRunner`)
+- [x] JWT token generation with jjwt (`JwtService`)
+- [x] Login endpoint — `POST /api/auth/login`
+- [ ] JWT authentication filter (validate token on each request)
+- [ ] Role-based access control on endpoints
 
 ### ⏳ Phase 3 — Order Management
 - [ ] Weekly order submission per unit (Supplier, Warehouse, Beira Sumos)
@@ -129,9 +135,9 @@ The system manages 7 operational units:
 - [ ] API usage examples
 
 ### ⏳ Phase 7 — Security & Quality
-- [ ] Global exception handling
 - [ ] Input validation on all endpoints
 - [ ] System logging
+- [ ] Externalize secrets (environment variables)
 - [ ] Security review
 
 ---
@@ -148,15 +154,16 @@ flowchain-api/
 ├── src/
 │   ├── main/
 │   │   ├── java/com/flowchain/api/
-│   │   │   ├── controller/        # REST Controllers
-│   │   │   ├── service/           # Business logic
+│   │   │   ├── config/            # Startup configuration (DataSeeder)
+│   │   │   ├── controller/        # REST Controllers (Unit, Auth)
+│   │   │   ├── service/           # Business logic (Unit, Auth)
 │   │   │   ├── repository/        # Spring Data JPA repositories
-│   │   │   ├── entity/            # JPA entities (database tables)
+│   │   │   ├── entity/            # JPA entities (Unit, UnitType, User, Role)
 │   │   │   ├── dto/               # Data Transfer Objects
-│   │   │   ├── security/          # JWT & Spring Security config
-│   │   │   └── exception/         # Global exception handling
+│   │   │   ├── security/          # SecurityConfig + JwtService
+│   │   │   └── exception/         # GlobalExceptionHandler
 │   │   └── resources/
-│   │       └── application.yml    # App configuration
+│   │       └── application.yaml   # App configuration
 │   └── test/                      # Unit & integration tests
 ├── docker-compose.yml             # PostgreSQL + pgAdmin containers
 ├── pom.xml                        # Maven dependencies
@@ -197,23 +204,70 @@ http://localhost:8080/swagger-ui/index.html
 
 ---
 
-## 📋 Main API Endpoints *(Work in Progress)*
+## 🔑 Authentication
 
-| Method | Endpoint | Role | Description |
-|---|---|---|---|
-| GET | `/api/units` | All | List all units |
-| GET | `/api/units/{id}` | All | Get unit by ID |
-| POST | `/api/units` | ADMIN | Create new unit |
-| DELETE | `/api/units/{id}` | ADMIN | Delete unit |
-| POST | `/api/auth/login` | All | User login |
-| POST | `/api/orders` | UNIT | Submit weekly order |
-| GET | `/api/orders/consolidated` | ADMIN, WAREHOUSE | Consolidated order list |
-| POST | `/api/warehouse/stock` | WAREHOUSE | Register stock movement |
-| POST | `/api/distributions` | WAREHOUSE | Create distribution |
-| PUT | `/api/distributions/{id}/confirm` | WAREHOUSE | Confirm delivery |
-| POST | `/api/chicken-stock` | UNIT | Daily chicken stock |
-| POST | `/api/transfers` | COURIER | Register urgent transfer |
-| POST | `/api/payments` | UNIT | Register supplier payment |
+On first startup, a default ADMIN user is automatically seeded:
+
+| Field | Value |
+|---|---|
+| Email | `admin@flowchain.com` |
+| Password | `admin123` |
+| Role | `ADMIN` |
+
+**Get a token:**
+
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@flowchain.com","password":"admin123"}'
+```
+
+**Response:**
+
+```json
+{
+  "token": "eyJhbGciOiJIUzM4NCJ9...",
+  "type": "Bearer",
+  "email": "admin@flowchain.com",
+  "name": "Patroa",
+  "role": "ADMIN"
+}
+```
+
+The token is valid for 24 hours. Send it on subsequent requests in the
+`Authorization` header:
+
+```
+Authorization: Bearer <token>
+```
+
+Passwords are never stored — only their BCrypt hash, with a unique salt per user.
+
+> ⚠️ Development credentials only. Change them, and move the JWT secret to an
+> environment variable, before any real deployment.
+
+---
+
+## 📋 Main API Endpoints
+
+| Method | Endpoint | Role | Description | Status |
+|---|---|---|---|---|
+| POST | `/api/auth/login` | All | User login — returns JWT | ✅ |
+| GET | `/api/units` | All | List all units | ✅ |
+| GET | `/api/units/{id}` | All | Get unit by ID | ✅ |
+| POST | `/api/units` | ADMIN | Create new unit | ✅ |
+| DELETE | `/api/units/{id}` | ADMIN | Delete unit | ✅ |
+| POST | `/api/orders` | UNIT | Submit weekly order | ⏳ |
+| GET | `/api/orders/consolidated` | ADMIN, WAREHOUSE | Consolidated order list | ⏳ |
+| POST | `/api/warehouse/stock` | WAREHOUSE | Register stock movement | ⏳ |
+| POST | `/api/distributions` | WAREHOUSE | Create distribution | ⏳ |
+| PUT | `/api/distributions/{id}/confirm` | WAREHOUSE | Confirm delivery | ⏳ |
+| POST | `/api/chicken-stock` | UNIT | Daily chicken stock | ⏳ |
+| POST | `/api/transfers` | COURIER | Register urgent transfer | ⏳ |
+| POST | `/api/payments` | UNIT | Register supplier payment | ⏳ |
+
+> Role-based restrictions are listed as designed. Enforcement per role is part
+> of the remaining Phase 2 work.
 
 ---
 
