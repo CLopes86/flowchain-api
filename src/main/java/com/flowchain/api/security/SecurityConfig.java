@@ -22,6 +22,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 // A implementação BCrypt dessa interface
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+// O filtro que vai processar os tokens
+// (se estiver no mesmo package 'security', não é preciso importar)
+
+// O filtro-padrão do Spring Security que trata de login por formulário —
+// usamo-lo como referência de posição
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 /**
  * Configuração central do Spring Security para o FlowChain.
  *
@@ -31,6 +38,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
  */
 @Configuration
 public class SecurityConfig {
+
+    /**
+     * O nosso filtro JWT, injetado pelo Spring.
+     * Como tem @Component, já está no contentor.
+     */
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
     /**
      * Define a cadeia de filtros de segurança da aplicação.
      * <p>
@@ -51,12 +69,19 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 // Regras de autorização, avaliadas POR ORDEM:
+                // Regras de autorização, avaliadas POR ORDEM:
                 .authorizeHttpRequests(auth -> auth
-                        // Caminhos do Swagger — públicos (documentação e testes)
-                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/api/auth/**" ).permitAll()
+                        // Caminhos do Swagger e login — públicos
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/api/auth/**").permitAll()
                         // Tudo o resto — só com autenticação válida
                         .anyRequest().authenticated()
-                );
+                )
+
+                // Insere o nosso filtro JWT ANTES do filtro de login por formulário.
+                // Assim, quando o pedido chega às regras de autorização,
+                // o utilizador já está (ou não) autenticado.
+                .addFilterBefore(jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

@@ -30,16 +30,22 @@ The system follows a **Layered Architecture** with clear separation of concerns:
 ```
 Client (Mobile App / Browser)
         ↓ HTTP Request + JWT
-Spring Security Filter
+JwtAuthenticationFilter   ← Validates the token, sets the security context
+        ↓ Authenticated
+Spring Security rules     ← Decides whether the request is allowed through
         ↓ Authorized
-Controller Layer     ← Receives HTTP requests, validates DTOs
+Controller Layer          ← Receives HTTP requests, validates DTOs
         ↓
-Service Layer        ← Business logic, validations, aggregations
+Service Layer             ← Business logic, validations, aggregations
         ↓
-Repository Layer     ← Spring Data JPA, database communication
+Repository Layer          ← Spring Data JPA, database communication
         ↓
 PostgreSQL Database
 ```
+
+Authentication is **stateless**: no sessions are created. Every request carries
+its own proof (the JWT), and the user's identity and role are read from the
+token itself — no database lookup is needed to identify the caller.
 
 ---
 
@@ -99,7 +105,7 @@ The system manages 7 operational units:
 - [x] Swagger UI integration
 - [x] Global exception handling with `@RestControllerAdvice`
 
-### 🔄 Phase 2 — Authentication *(In Progress)*
+### 🔄 Phase 2 — Authentication *(Almost complete)*
 - [x] User entity + Role enum (ADMIN, WAREHOUSE, UNIT, COURIER)
 - [x] UserRepository with email lookup
 - [x] BCrypt password hashing
@@ -107,7 +113,8 @@ The system manages 7 operational units:
 - [x] Admin user seeding on startup (`CommandLineRunner`)
 - [x] JWT token generation with jjwt (`JwtService`)
 - [x] Login endpoint — `POST /api/auth/login`
-- [ ] JWT authentication filter (validate token on each request)
+- [x] JWT authentication filter — token validated on every request
+- [x] End-to-end authentication working (protected endpoints accessible with a valid token)
 - [ ] Role-based access control on endpoints
 
 ### ⏳ Phase 3 — Order Management
@@ -160,7 +167,8 @@ flowchain-api/
 │   │   │   ├── repository/        # Spring Data JPA repositories
 │   │   │   ├── entity/            # JPA entities (Unit, UnitType, User, Role)
 │   │   │   ├── dto/               # Data Transfer Objects
-│   │   │   ├── security/          # SecurityConfig + JwtService
+│   │   │   ├── security/          # SecurityConfig, JwtService,
+│   │   │   │                      #   JwtAuthenticationFilter
 │   │   │   └── exception/         # GlobalExceptionHandler
 │   │   └── resources/
 │   │       └── application.yaml   # App configuration
@@ -206,6 +214,9 @@ http://localhost:8080/swagger-ui/index.html
 
 ## 🔑 Authentication
 
+All endpoints are protected by default. Only `/api/auth/**` and the Swagger
+paths are public.
+
 On first startup, a default ADMIN user is automatically seeded:
 
 | Field | Value |
@@ -214,7 +225,7 @@ On first startup, a default ADMIN user is automatically seeded:
 | Password | `admin123` |
 | Role | `ADMIN` |
 
-**Get a token:**
+**1. Get a token**
 
 ```bash
 curl -X POST http://localhost:8080/api/auth/login \
@@ -222,7 +233,7 @@ curl -X POST http://localhost:8080/api/auth/login \
   -d '{"email":"admin@flowchain.com","password":"admin123"}'
 ```
 
-**Response:**
+Response:
 
 ```json
 {
@@ -234,14 +245,23 @@ curl -X POST http://localhost:8080/api/auth/login \
 }
 ```
 
-The token is valid for 24 hours. Send it on subsequent requests in the
-`Authorization` header:
+**2. Call a protected endpoint**
 
-```
-Authorization: Bearer <token>
+```bash
+curl -X GET http://localhost:8080/api/units \
+  -H "Authorization: Bearer <token>"
 ```
 
-Passwords are never stored — only their BCrypt hash, with a unique salt per user.
+Without the header, the same request is rejected before it ever reaches the
+controller.
+
+**How it works**
+
+- The token is signed with an HMAC-SHA key and is valid for 24 hours
+- Its payload carries `sub` (email), `role`, `iat` and `exp`
+- `JwtAuthenticationFilter` validates the signature on every request and places
+  the authenticated user in the Spring Security context
+- Passwords are never stored — only their BCrypt hash, with a unique salt per user
 
 > ⚠️ Development credentials only. Change them, and move the JWT secret to an
 > environment variable, before any real deployment.
@@ -252,9 +272,9 @@ Passwords are never stored — only their BCrypt hash, with a unique salt per us
 
 | Method | Endpoint | Role | Description | Status |
 |---|---|---|---|---|
-| POST | `/api/auth/login` | All | User login — returns JWT | ✅ |
-| GET | `/api/units` | All | List all units | ✅ |
-| GET | `/api/units/{id}` | All | Get unit by ID | ✅ |
+| POST | `/api/auth/login` | Public | User login — returns JWT | ✅ |
+| GET | `/api/units` | Authenticated | List all units | ✅ |
+| GET | `/api/units/{id}` | Authenticated | Get unit by ID | ✅ |
 | POST | `/api/units` | ADMIN | Create new unit | ✅ |
 | DELETE | `/api/units/{id}` | ADMIN | Delete unit | ✅ |
 | POST | `/api/orders` | UNIT | Submit weekly order | ⏳ |
@@ -266,8 +286,9 @@ Passwords are never stored — only their BCrypt hash, with a unique salt per us
 | POST | `/api/transfers` | COURIER | Register urgent transfer | ⏳ |
 | POST | `/api/payments` | UNIT | Register supplier payment | ⏳ |
 
-> Role-based restrictions are listed as designed. Enforcement per role is part
-> of the remaining Phase 2 work.
+> Implemented endpoints currently require a valid token. The per-role
+> restrictions listed above are the intended design — enforcing them is the
+> remaining Phase 2 task.
 
 ---
 
