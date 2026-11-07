@@ -32,8 +32,10 @@ Client (Mobile App / Browser)
         ↓ HTTP Request + JWT
 JwtAuthenticationFilter   ← Validates the token, sets the security context
         ↓ Authenticated
-Spring Security rules     ← Decides whether the request is allowed through
+Spring Security rules     ← Is the request allowed through at all?
         ↓ Authorized
+@PreAuthorize on methods  ← Does this user's role allow this operation?
+        ↓ Permitted
 Controller Layer          ← Receives HTTP requests, validates DTOs
         ↓
 Service Layer             ← Business logic, validations, aggregations
@@ -105,17 +107,17 @@ The system manages 7 operational units:
 - [x] Swagger UI integration
 - [x] Global exception handling with `@RestControllerAdvice`
 
-### 🔄 Phase 2 — Authentication *(Almost complete)*
+### ✅ Phase 2 — Authentication & Authorization *(Completed)*
 - [x] User entity + Role enum (ADMIN, WAREHOUSE, UNIT, COURIER)
 - [x] UserRepository with email lookup
 - [x] BCrypt password hashing
 - [x] Spring Security enabled — stateless `SecurityFilterChain`
-- [x] Admin user seeding on startup (`CommandLineRunner`)
+- [x] User seeding on startup (`CommandLineRunner`)
 - [x] JWT token generation with jjwt (`JwtService`)
 - [x] Login endpoint — `POST /api/auth/login`
 - [x] JWT authentication filter — token validated on every request
-- [x] End-to-end authentication working (protected endpoints accessible with a valid token)
-- [ ] Role-based access control on endpoints
+- [x] Role-based access control — `@EnableMethodSecurity` + `@PreAuthorize`
+- [x] Verified end to end: same request returns 403 for COURIER and 201 for ADMIN
 
 ### ⏳ Phase 3 — Order Management
 - [ ] Weekly order submission per unit (Supplier, Warehouse, Beira Sumos)
@@ -145,6 +147,7 @@ The system manages 7 operational units:
 - [ ] Input validation on all endpoints
 - [ ] System logging
 - [ ] Externalize secrets (environment variables)
+- [ ] Return 401 (instead of 403) for unauthenticated requests
 - [ ] Security review
 
 ---
@@ -212,18 +215,17 @@ http://localhost:8080/swagger-ui/index.html
 
 ---
 
-## 🔑 Authentication
+## 🔑 Authentication & Authorization
 
 All endpoints are protected by default. Only `/api/auth/**` and the Swagger
 paths are public.
 
-On first startup, a default ADMIN user is automatically seeded:
+Two users are seeded on first startup, so the role rules can be tried out:
 
-| Field | Value |
-|---|---|
-| Email | `admin@flowchain.com` |
-| Password | `admin123` |
-| Role | `ADMIN` |
+| Email | Password | Role |
+|---|---|---|
+| `admin@flowchain.com` | `admin123` | `ADMIN` |
+| `estafeta@flowchain.com` | `estafeta123` | `COURIER` |
 
 **1. Get a token**
 
@@ -255,12 +257,30 @@ curl -X GET http://localhost:8080/api/units \
 Without the header, the same request is rejected before it ever reaches the
 controller.
 
+**3. Role rules in action**
+
+Creating a unit is restricted to `ADMIN`. The same request, with two different
+tokens:
+
+```bash
+curl -i -X POST http://localhost:8080/api/units \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Iota","type":"TAKEAWAY","prepCenter":false}'
+```
+
+| Token | Result |
+|---|---|
+| `COURIER` | `403 Forbidden` — authenticated, but not permitted |
+| `ADMIN` | `201 Created` — unit created |
+
 **How it works**
 
 - The token is signed with an HMAC-SHA key and is valid for 24 hours
 - Its payload carries `sub` (email), `role`, `iat` and `exp`
 - `JwtAuthenticationFilter` validates the signature on every request and places
   the authenticated user in the Spring Security context
+- `@PreAuthorize("hasRole('ADMIN')")` then checks the role before the method runs
 - Passwords are never stored — only their BCrypt hash, with a unique salt per user
 
 > ⚠️ Development credentials only. Change them, and move the JWT secret to an
@@ -286,9 +306,8 @@ controller.
 | POST | `/api/transfers` | COURIER | Register urgent transfer | ⏳ |
 | POST | `/api/payments` | UNIT | Register supplier payment | ⏳ |
 
-> Implemented endpoints currently require a valid token. The per-role
-> restrictions listed above are the intended design — enforcing them is the
-> remaining Phase 2 task.
+> ✅ endpoints are implemented and enforce the role shown. ⏳ endpoints are
+> planned for the phases above; their roles are the intended design.
 
 ---
 

@@ -29,6 +29,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 // usamo-lo como referência de posição
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+// Ativa o processamento de anotações de segurança nos métodos (@PreAuthorize, etc.)
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+
 /**
  * Configuração central do Spring Security para o FlowChain.
  *
@@ -37,6 +40,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * e passa a usar exclusivamente as regras definidas aqui.
  */
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     /**

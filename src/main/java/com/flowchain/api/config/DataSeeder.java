@@ -31,17 +31,17 @@ import com.flowchain.api.repository.UserRepository;
 public class DataSeeder implements CommandLineRunner {
     /**
      * Injeção de dependência por construtor.
-     *
+     * <p>
      * O Spring vê que esta classe precisa de um UserRepository e de
      * um PasswordEncoder, procura-os no contentor, e passa-os aqui.
      * Nunca escrevemos "new" — é o Spring que liga os fios.
-     *
+     * <p>
      * final → garante que não são substituídos depois de injetados.
      */
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public DataSeeder(UserRepository userRepository, PasswordEncoder passwordEncoder){
+    public DataSeeder(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -53,36 +53,43 @@ public class DataSeeder implements CommandLineRunner {
      * declarado na interface CommandLineRunner.
      */
     @Override
-    public void run(String... args){
-        String  adminEmail = "admin@flowchain.com";
+    public void run(String... args) {
+        String adminEmail = "admin@flowchain.com";
 
-        // Só queremos saber SIM ou NÃO → existsByEmail é o método certo
-        // (mais eficiente que findByEmail: a BD conta em vez de
-        //  transportar a linha inteira)
-        if (userRepository.existsByEmail(adminEmail)) {
-            System.out.println(">>> Utilizador ADMIN já existe — seeding ignorado.");
-            return;   // sai do método, não cria nada
+        if (!userRepository.existsByEmail(adminEmail)) {
+
+            User admin = new User();
+            admin.setName("Patroa");
+            admin.setEmail(adminEmail);
+            admin.setPasswordHash(passwordEncoder.encode("admin123"));
+            admin.setRole(Role.ADMIN);
+
+            userRepository.save(admin);
+
+            System.out.println(">>> Utilizador ADMIN criado: " + adminEmail);
         }
 
-        // Constrói o novo utilizador
-        User admin = new User();
-        admin.setName("Patroa");
-        admin.setEmail(adminEmail);
+        // ---------- Segundo utilizador: COURIER (para testar autorização) ----------
 
-        // AQUI ACONTECE A MAGIA: a password é transformada em hash.
-        // O que fica guardado na BD nunca é "admin123",
-        // mas sim algo como "$2a$10$N9qo8uLOickgx2ZM..."
-        admin.setPasswordHash(passwordEncoder.encode("admin123"));
+        // ---------- Segundo utilizador: COURIER (para testar autorização) ----------
 
-        admin.setRole(Role.ADMIN);
+        String courierEmail = "estafeta@flowchain.com";
 
-        // unit fica a null — ADMIN tem visão transversal,
-        // não pertence a nenhuma unidade (nullable = true no @JoinColumn)
+        // Mesma guarda de idempotência: só cria se ainda não existir
+        if (!userRepository.existsByEmail(courierEmail)) {
 
-        // save() → método que veio de borla do JpaRepository.
-        // Spring Data → Hibernate escreve o INSERT → PostgreSQL executa
-        userRepository.save(admin);
+            User courier = new User();
+            courier.setName("Estafeta");
+            courier.setEmail(courierEmail);
+            courier.setPasswordHash(passwordEncoder.encode("estafeta123"));
+            courier.setRole(Role.COURIER);
 
-        System.out.println(">>> Utilizador ADMIN criado: " + adminEmail);
+            // unit fica a null por agora — mais tarde podemos associá-lo à Beta
+            // (que é a base do estafeta, segundo a Análise de Requisitos)
+
+            userRepository.save(courier);
+
+            System.out.println(">>> Utilizador COURIER criado: " + courierEmail);
+        }
     }
 }

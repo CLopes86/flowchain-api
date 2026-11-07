@@ -40,6 +40,9 @@ import java.util.UUID;
 // map() → transforma cada elemento
 // toList() → converte de volta para lista
 import java.util.stream.Collectors;
+// @PreAuthorize — define QUEM pode chamar este método.
+// A verificação acontece ANTES do método correr.
+import org.springframework.security.access.prepost.PreAuthorize;
 
 /**
  * Controller responsável pelos endpoints REST da entidade Unit.
@@ -163,6 +166,7 @@ public class UnitController {
      * @Valid → activa as validações do UnitRequestDTO
      * Se alguma validação falhar, o Spring devolve automaticamente 400 Bad Request
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<UnitResponseDTO> createUnit(@Valid @RequestBody UnitRequestDTO dto) {
 
@@ -200,6 +204,7 @@ public class UnitController {
      *
      * @param id ID da unidade a apagar (extraído da URL)
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUnit(@PathVariable UUID id) {
 
